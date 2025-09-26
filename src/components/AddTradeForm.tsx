@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Calculator } from "lucide-react";
+import { PlusCircle, Calculator, Edit3 } from "lucide-react";
 import { Trade } from "@/types/trading";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,11 +20,17 @@ export function AddTradeForm({ onAddTrade, lastBalance }: AddTradeFormProps) {
   const [entryPrice, setEntryPrice] = useState("");
   const [exitPrice, setExitPrice] = useState("");
   const [lotSize, setLotSize] = useState("");
+  const [customPnL, setCustomPnL] = useState("");
+  const [useCustomPnL, setUseCustomPnL] = useState(false);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const calculatePnL = () => {
+    if (useCustomPnL && customPnL) {
+      return parseFloat(customPnL);
+    }
+    
     const entry = parseFloat(entryPrice);
     const exit = parseFloat(exitPrice);
     const lots = parseFloat(lotSize);
@@ -43,6 +49,16 @@ export function AddTradeForm({ onAddTrade, lastBalance }: AddTradeFormProps) {
 
   const previewPnL = calculatePnL();
 
+  const toggleCustomPnL = () => {
+    setUseCustomPnL(!useCustomPnL);
+    if (!useCustomPnL) {
+      // When switching to custom, set current calculated value
+      setCustomPnL(calculatePnL().toFixed(2));
+    } else {
+      // When switching back to calculated, clear custom value
+      setCustomPnL("");
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -66,6 +82,8 @@ export function AddTradeForm({ onAddTrade, lastBalance }: AddTradeFormProps) {
       setEntryPrice("");
       setExitPrice("");
       setLotSize("");
+      setCustomPnL("");
+      setUseCustomPnL(false);
       setNotes("");
       
       toast({
@@ -131,7 +149,8 @@ export function AddTradeForm({ onAddTrade, lastBalance }: AddTradeFormProps) {
                 placeholder="0.00"
                 value={entryPrice}
                 onChange={(e) => setEntryPrice(e.target.value)}
-                required
+                required={!useCustomPnL}
+                disabled={useCustomPnL}
               />
             </div>
 
@@ -144,7 +163,8 @@ export function AddTradeForm({ onAddTrade, lastBalance }: AddTradeFormProps) {
                 placeholder="0.00"
                 value={exitPrice}
                 onChange={(e) => setExitPrice(e.target.value)}
-                required
+                required={!useCustomPnL}
+                disabled={useCustomPnL}
               />
             </div>
 
@@ -157,22 +177,47 @@ export function AddTradeForm({ onAddTrade, lastBalance }: AddTradeFormProps) {
                 placeholder="1.00"
                 value={lotSize}
                 onChange={(e) => setLotSize(e.target.value)}
-                required
+                required={!useCustomPnL}
+                disabled={useCustomPnL}
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Calculator className="h-4 w-4" />
-                Calculated P&L
+              <Label className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Calculator className="h-4 w-4" />
+                  {useCustomPnL ? "Custom P&L" : "Calculated P&L"}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleCustomPnL}
+                  className="h-6 px-2 text-xs"
+                >
+                  <Edit3 className="h-3 w-3 mr-1" />
+                  {useCustomPnL ? "Auto" : "Edit"}
+                </Button>
               </Label>
-              <div className={`p-3 rounded-md border text-lg font-bold ${
-                previewPnL >= 0 
-                  ? "bg-profit-muted text-profit border-profit/20" 
-                  : "bg-loss-muted text-loss border-loss/20"
-              }`}>
-                ${previewPnL.toFixed(2)}
-              </div>
+              {useCustomPnL ? (
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter P&L manually"
+                  value={customPnL}
+                  onChange={(e) => setCustomPnL(e.target.value)}
+                  className="text-lg font-bold"
+                  required
+                />
+              ) : (
+                <div className={`p-3 rounded-md border text-lg font-bold ${
+                  previewPnL >= 0 
+                    ? "bg-profit-muted text-profit border-profit/20" 
+                    : "bg-loss-muted text-loss border-loss/20"
+                }`}>
+                  ${previewPnL.toFixed(2)}
+                </div>
+              )}
             </div>
           </div>
 
@@ -190,7 +235,7 @@ export function AddTradeForm({ onAddTrade, lastBalance }: AddTradeFormProps) {
           <Button 
             type="submit" 
             className="w-full"
-            disabled={loading || !symbol || !entryPrice || !exitPrice || !lotSize}
+            disabled={loading || !symbol || (!useCustomPnL && (!entryPrice || !exitPrice || !lotSize)) || (useCustomPnL && !customPnL)}
           >
             {loading ? "Adding Trade..." : "Add Trade"}
           </Button>

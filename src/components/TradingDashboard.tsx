@@ -56,9 +56,14 @@ export function TradingDashboard({ user, onLogout, isPublicMode, onLoginRequest 
   }, [currentBalance]);
 
   const addTrade = (newTradeData: Omit<Trade, 'id' | 'date' | 'pnl' | 'runningBalance'>) => {
-    const pnl = newTradeData.tradeType === "Buy" 
-      ? (newTradeData.exitPrice - newTradeData.entryPrice) * newTradeData.lotSize
-      : (newTradeData.entryPrice - newTradeData.exitPrice) * newTradeData.lotSize;
+    // Calculate P&L based on trade type and prices
+    // If prices are 0, it means custom P&L was used (will be overridden)
+    let pnl = 0;
+    if (newTradeData.entryPrice > 0 && newTradeData.exitPrice > 0 && newTradeData.lotSize > 0) {
+      pnl = newTradeData.tradeType === "Buy" 
+        ? (newTradeData.exitPrice - newTradeData.entryPrice) * newTradeData.lotSize
+        : (newTradeData.entryPrice - newTradeData.exitPrice) * newTradeData.lotSize;
+    }
     
     const lastBalance = trades.length > 0 ? trades[trades.length - 1].runningBalance : currentBalance;
     const runningBalance = lastBalance + pnl;

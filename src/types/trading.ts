@@ -9,6 +9,7 @@ export interface Trade {
   pnl: number;
   runningBalance: number;
   notes: string;
+  customPnL?: boolean; // Flag to indicate if P&L was manually entered
 }
 
 export interface User {
