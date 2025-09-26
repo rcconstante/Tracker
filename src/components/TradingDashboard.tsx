@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, TrendingUp, TrendingDown, DollarSign, Target, LogIn, BarChart3, Plus, Settings } from "lucide-react";
+import { LogOut, TrendingUp, TrendingDown, DollarSign, Target, LogIn, ChartBar as BarChart3, Plus, Settings } from "lucide-react";
 import { TradeTable } from "./TradeTable";
 import { AddTradeForm } from "./AddTradeForm";
 import { MarketPrice } from "./MarketPrice";

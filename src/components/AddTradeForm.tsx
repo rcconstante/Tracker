@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Calculator, Edit3 } from "lucide-react";
+import { CirclePlus as PlusCircle, Calculator, CreditCard as Edit3 } from "lucide-react";
 import { Trade } from "@/types/trading";
 import { useToast } from "@/hooks/use-toast";
 
